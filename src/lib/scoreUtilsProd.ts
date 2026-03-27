@@ -6,8 +6,8 @@ export const DB_MAX = -10; // at or above = full power
 export const DB_WIN_THRESHOLD = -20; // must sustain above this to build hold timer
 export const WIN_HOLD_SECONDS = 3;
 
-const DELTA_SCALE = 0.025; // score increase rate per tick at full volume
-const DECAY_RATE = 0.003; // score decay rate per tick when below threshold
+const DELTA_SCALE = 0.025; 
+const DECAY_RATE = 0.003; 
 
 export function dbToNormalized(db: number): number {
   // DB_THRESHOLD..DB_MAX → 0..1, quadratic so quiet barely contributes

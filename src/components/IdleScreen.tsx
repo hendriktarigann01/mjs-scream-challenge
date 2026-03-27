@@ -6,17 +6,8 @@ interface IdleScreenProps {
 
 export default function IdleScreen({ onStart }: IdleScreenProps) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-black">
-      <video
-        src="/background-video.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-40 "
-      />
-
-      <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8">
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden">
+      <div className="relative z-10 flex flex-col items-center gap-12 px-8 max-w-xl w-full">
         <div className="flex flex-col items-center gap-2">
           <p className="text-white/60 tracking-[0.4em] text-sm uppercase">
             Are you brave enough?
