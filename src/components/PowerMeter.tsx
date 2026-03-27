@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { dbToDisplayPct } from "@/lib/scoreUtilsProd";
+import { dbToDisplayPct } from "@/lib/scoreUtilsDev";
 
 interface PowerMeterProps {
   db: number; // dBFS,
