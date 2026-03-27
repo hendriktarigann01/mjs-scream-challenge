@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 interface MicrophoneState {
   db: number;
@@ -26,29 +26,33 @@ export function useMicrophone(): UseMicrophoneReturn {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const freqArrayRef = useRef<Float32Array | null>(null);
+  const freqArrayRef = useRef<Float32Array<ArrayBuffer> | null>(null);
   const activeRef = useRef(false);
 
-  const tick = useCallback(() => {
-    if (!activeRef.current) return;
+  // Store tick in a ref so it can self-reference without circular declaration
+  const tickRef = useRef<() => void>(() => {});
 
-    const analyser = analyserRef.current;
-    const freqArray = freqArrayRef.current;
+  useEffect(() => {
+    tickRef.current = () => {
+      if (!activeRef.current) return;
 
-    if (analyser && freqArray) {
-      analyser.getFloatFrequencyData(freqArray);
+      const analyser = analyserRef.current;
+      const freqArray = freqArrayRef.current;
 
-      let peak = DB_FLOOR;
-      for (let i = 0; i < freqArray.length; i++) {
-        if (freqArray[i] > peak) peak = freqArray[i];
+      if (analyser && freqArray) {
+        analyser.getFloatFrequencyData(freqArray);
+
+        let peak = DB_FLOOR;
+        for (let i = 0; i < freqArray.length; i++) {
+          if (freqArray[i] > peak) peak = freqArray[i];
+        }
+
+        setState((prev) => ({ ...prev, db: Math.max(DB_FLOOR, peak) }));
       }
 
-      const clamped = Math.max(DB_FLOOR, peak);
-      setState((prev) => ({ ...prev, db: clamped }));
-    }
-
-    animFrameRef.current = requestAnimationFrame(tick);
-  }, []); // no deps — reads only refs
+      animFrameRef.current = requestAnimationFrame(tickRef.current);
+    };
+  }, []);
 
   const start = useCallback(async () => {
     try {
@@ -65,17 +69,19 @@ export function useMicrophone(): UseMicrophoneReturn {
 
       audioContextRef.current = ctx;
       analyserRef.current = analyser;
-      freqArrayRef.current = new Float32Array(analyser.frequencyBinCount);
+      freqArrayRef.current = new Float32Array(
+        analyser.frequencyBinCount,
+      ) as Float32Array<ArrayBuffer>;
       activeRef.current = true;
 
       setState({ db: DB_FLOOR, isActive: true, error: null });
-      animFrameRef.current = requestAnimationFrame(tick);
+      animFrameRef.current = requestAnimationFrame(tickRef.current);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Microphone access denied";
       setState({ db: DB_FLOOR, isActive: false, error: message });
     }
-  }, [tick]);
+  }, []);
 
   const stop = useCallback(() => {
     activeRef.current = false;
