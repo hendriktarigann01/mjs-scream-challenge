@@ -13,7 +13,7 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
             Are you brave enough?
           </p>
           <h1
-            className="text-white text-[clamp(4rem,12vw,9rem)] leading-none font-black uppercase"
+            className="text-white text-center text-[clamp(4rem,12vw,9rem)] leading-none font-black uppercase"
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
             }}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { AUTO_RESET_MS } from "@/lib/scoreUtils";
 import type { GameResult } from "@/types/game";
 
@@ -10,11 +9,9 @@ interface ResultScreenProps {
   onReset: () => void;
 }
 
-export default function ResultScreen({
-  result: _result,
-  onReset,
-}: ResultScreenProps) {
+export default function ResultScreen({ result, onReset }: ResultScreenProps) {
   const [countdown, setCountdown] = useState(AUTO_RESET_MS / 1000);
+  const { isWin } = result;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -33,11 +30,9 @@ export default function ResultScreen({
   return (
     <div
       className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor: "#0169dc" }}
+      style={{ backgroundColor: isWin ? "#0169dc" : "#0169dc" }}
     >
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8">
-        {/* <Image src="/congrats.png" alt="Congratulations" fill className="object-contain" /> */}
-
         <h1
           className="font-black uppercase leading-none text-white"
           style={{
@@ -45,11 +40,11 @@ export default function ResultScreen({
             fontSize: "clamp(3rem, 10vw, 6rem)",
           }}
         >
-          Congratulations!
+          {isWin ? "Congratulations!" : "So Close!"}
         </h1>
 
         <p className="text-white/70 tracking-widest text-sm uppercase">
-          You nailed it!
+          {isWin ? "You nailed it!" : "Give it another try!"}
         </p>
 
         <div className="flex flex-col items-center gap-1 mt-4">
@@ -64,12 +59,31 @@ export default function ResultScreen({
           </span>
         </div>
 
-        <button
-          onClick={onReset}
-          className="px-8 py-3 border-2 border-white/30 text-white/70 text-sm tracking-widest uppercase rounded-full hover:bg-white/10 transition-all duration-200"
-        >
-          Play Again
-        </button>
+        <div className="flex items-center gap-4 mt-2">
+          {isWin && (
+            <a
+              href="https://mjs-spin-wheel.vercel.app/"
+                rel="noopener noreferrer"
+              className="bg-white text-[#0169dc] font-black tracking-widest uppercase rounded-full hover:bg-white/90 transition-all duration-200"
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "1.1rem",
+                padding: "12px 24px",
+                display: "inline-block",
+              }}
+            >
+              Spin the Wheel!
+            </a>
+          )}
+
+          <button
+            onClick={onReset}
+            className="border-2 cursor-pointer border-white/30 text-white/70 text-sm tracking-widest uppercase rounded-full hover:bg-white/10 transition-all duration-200"
+            style={{ padding: "12px 32px" }}
+          >
+            Play Again
+          </button>
+        </div>
       </div>
     </div>
   );

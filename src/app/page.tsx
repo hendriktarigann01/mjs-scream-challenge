@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import type { GameState, GameResult } from "@/types/game";
+import type { GameState, GameResult, GameLevel } from "@/types/game";
 import IdleScreen from "@/components/IdleScreen";
 import InstructionScreen from "@/components/InstructionScreen";
 import CountdownScreen from "@/components/CountdownScreen";
@@ -13,11 +13,17 @@ import { Header } from "@/components/layout/Header";
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [result, setResult] = useState<GameResult | null>(null);
+  const [level, setLevel] = useState<GameLevel>("normal");
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleStart = useCallback(() => setGameState("instruction"), []);
-  const handleStartGame = useCallback(() => setGameState("countdown"), []);
+
+  const handleStartGame = useCallback((selectedLevel: GameLevel) => {
+    setLevel(selectedLevel);
+    setGameState("countdown");
+  }, []);
+
   const handleCountdownComplete = useCallback(
     () => setGameState("playing"),
     [],
@@ -57,7 +63,7 @@ export default function Home() {
             <CountdownScreen onComplete={handleCountdownComplete} />
           )}
           {gameState === "playing" && (
-            <GameplayScreen onFinish={handleGameFinish} />
+            <GameplayScreen level={level} onFinish={handleGameFinish} />
           )}
           {gameState === "result" && result && (
             <ResultScreen result={result} onReset={handleReset} />

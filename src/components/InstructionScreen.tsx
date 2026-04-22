@@ -1,12 +1,14 @@
 "use client";
 
+import type { GameLevel } from "@/types/game";
+
 interface InstructionScreenProps {
-  onStartGame: () => void;
+  onStartGame: (level: GameLevel) => void;
 }
 
 const steps = [
   { number: "01", text: "Step close to the microphone" },
-  { number: "02", text: "Press start game and get ready" },
+  { number: "02", text: "Choose your difficulty and get ready" },
   { number: "03", text: "SCREAM as loud as you can!" },
 ];
 
@@ -14,7 +16,7 @@ export default function InstructionScreen({
   onStartGame,
 }: InstructionScreenProps) {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
       <div className="relative z-10 flex flex-col items-center gap-12 px-8 max-w-xl w-full">
         <h2
           className="text-white text-[clamp(2.5rem,8vw,5rem)] font-black uppercase text-center leading-none"
@@ -43,13 +45,20 @@ export default function InstructionScreen({
           ))}
         </div>
 
-        <button
-          onClick={onStartGame}
-          className="w-36 h-10 px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm tracking-widest uppercase rounded-xl transition-all duration-200 backdrop-blur-sm"
-      
-        >
-          Start Game
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => onStartGame("normal")}
+            className="w-36 h-10 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm tracking-widest uppercase rounded-xl transition-all duration-200 backdrop-blur-sm"
+          >
+            Normal
+          </button>
+          <button
+            onClick={() => onStartGame("hard")}
+            className="w-36 h-10 bg-[#FF4500]/70 hover:bg-[#FF4500]/90 border border-[#FF4500] text-white text-sm tracking-widest uppercase rounded-xl transition-all duration-200"
+          >
+            Hard
+          </button>
+        </div>
       </div>
     </div>
   );

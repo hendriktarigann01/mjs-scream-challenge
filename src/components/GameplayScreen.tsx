@@ -1,41 +1,71 @@
+/* eslint-disable react-hooks/refs */
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useMicrophone } from "@/hooks/useMicrophone";
 import {
   accumulateDelta,
   decayDelta,
   getScoreLabel,
-  DB_WIN_THRESHOLD,
-  WIN_HOLD_SECONDS,
+  getConfig,
 } from "@/lib/scoreUtils";
 import PowerMeter from "./PowerMeter";
-import type { GameResult } from "@/types/game";
+import type { GameResult, GameLevel } from "@/types/game";
 
 interface GameplayScreenProps {
+  level: GameLevel;
   onFinish: (result: GameResult) => void;
 }
 
-export default function GameplayScreen({ onFinish }: GameplayScreenProps) {
+export default function GameplayScreen({
+  level,
+  onFinish,
+}: GameplayScreenProps) {
   const { db, isActive, error, start, stop } = useMicrophone();
 
-  const accScoreRef = useRef(0); // 0–100, accumulated score
-  const holdMsRef = useRef(0); // ms spent above DB_WIN_THRESHOLD continuously
+  const accScoreRef = useRef(0);
+  const holdMsRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
+  const [timeLeft, setTimeLeft] = useState(20);
 
-  const finish = useCallback(() => {
-    if (finishedRef.current) return;
-    finishedRef.current = true;
-    stop();
-    const finalScore = Math.min(100, Math.round(accScoreRef.current));
-    const { label } = getScoreLabel(finalScore);
-    onFinish({ score: finalScore, maxVolume: finalScore, label });
-  }, [onFinish, stop]);
+  const { DB_WIN_THRESHOLD, WIN_HOLD_SECONDS } = getConfig(level);
+
+  const finish = useCallback(
+    (isWin: boolean) => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
+      stop();
+      const finalScore = Math.min(100, Math.round(accScoreRef.current));
+      const { label } = getScoreLabel(finalScore);
+      onFinish({
+        score: finalScore,
+        maxVolume: finalScore,
+        label,
+        level,
+        isWin,
+      });
+    },
+    [onFinish, stop, level],
+  );
 
   useEffect(() => {
     start();
   }, [start]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          finish(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [finish]);
 
   useEffect(() => {
     if (!isActive || finishedRef.current) return;
@@ -45,25 +75,23 @@ export default function GameplayScreen({ onFinish }: GameplayScreenProps) {
     lastTickRef.current = now;
 
     if (db >= DB_WIN_THRESHOLD) {
-      // above threshold: accumulate score + build hold timer
-      const delta = accumulateDelta(db);
+      const delta = accumulateDelta(db, level);
       accScoreRef.current = Math.min(100, accScoreRef.current + delta);
 
       holdMsRef.current += elapsed;
       if (holdMsRef.current >= WIN_HOLD_SECONDS * 1000) {
-        // held long enough — force score to 100 and finish
         accScoreRef.current = 100;
-        finish();
+        finish(true);
       }
     } else {
-      // below threshold: reset hold timer, decay score slowly
       holdMsRef.current = 0;
-      const decay = decayDelta();
-      accScoreRef.current = Math.max(0, accScoreRef.current - decay);
+      accScoreRef.current = Math.max(
+        0,
+        accScoreRef.current - decayDelta(level),
+      );
     }
-  }, [db, isActive, finish]);
+  }, [db, isActive, finish, level, DB_WIN_THRESHOLD, WIN_HOLD_SECONDS]);
 
-  // hold progress as 0–100 for the visual ring
   const holdPct = Math.min(
     100,
     (holdMsRef.current / (WIN_HOLD_SECONDS * 1000)) * 100,
@@ -71,7 +99,7 @@ export default function GameplayScreen({ onFinish }: GameplayScreenProps) {
   const isHolding = db >= DB_WIN_THRESHOLD;
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-transparent">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-75"
         style={{
@@ -86,25 +114,39 @@ export default function GameplayScreen({ onFinish }: GameplayScreenProps) {
       />
 
       <div className="relative z-10 flex flex-col items-center gap-10 w-full px-8">
-        <h1
-          className="text-white font-black uppercase text-[clamp(2rem,7vw,4rem)] leading-none"
-          style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            letterSpacing: "0.1em",
-          }}
-        >
-          SCREAM!
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1
+            className="text-white font-black uppercase text-[clamp(2rem,7vw,4rem)] leading-none"
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              letterSpacing: "0.1em",
+            }}
+          >
+            SCREAM!
+          </h1>
+        </div>
 
-        {error && <p className="text-white-400 text-sm">{error}</p>}
+        {error && <p className="text-red-400 text-sm">{error}</p>}
 
         {/* TEMP DEBUG — remove after calibration */}
-        <p className="text-white/60 font-mono text-lg">{db.toFixed(1)} dBFS</p>
+        {/* <p className="text-white/60 font-mono text-lg">{db.toFixed(1)} dBFS</p> */}
 
-        <div className="flex h-[300px] flex-col items-center gap-6">
-          <PowerMeter db={db} />
+        <div className="flex flex-col items-center gap-6">
+          {/* countdown timer */}
+          <span
+            className="font-black leading-none tabular-nums"
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: "clamp(3rem,10vw,5rem)",
+              color: timeLeft <= 5 ? "#FF4500" : "white",
+              textShadow: timeLeft <= 5 ? "0 0 40px #FF450088" : "none",
+            }}
+          >
+            {timeLeft}
+          </span>
 
-          {/* Hold progress indicator — only visible when above threshold */}
+          <PowerMeter db={db} level={level} />
+
           <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-100"
@@ -119,7 +161,7 @@ export default function GameplayScreen({ onFinish }: GameplayScreenProps) {
 
           {isHolding && (
             <p
-              className="text-white text-xs tracking-widest uppercase animate-pulse"
+              className="text-yellow-300 tracking-widest uppercase animate-pulse"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "1rem",

@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { dbToDisplayPct } from "@/lib/scoreUtilsDev";
+import { dbToDisplayPct } from "@/lib/scoreUtils";
+import type { GameLevel } from "@/types/game";
 
 interface PowerMeterProps {
-  db: number; // dBFS,
+  db: number;
+  level: GameLevel;
 }
 
 const LIGHTNING_ID = "lightningClip";
 
-export default function PowerMeter({ db }: PowerMeterProps) {
-  const instantPct = dbToDisplayPct(db);
+export default function PowerMeter({ db, level }: PowerMeterProps) {
+  const instantPct = dbToDisplayPct(db, level);
   const fillRef = useRef<SVGRectElement>(null);
   const glowRef = useRef<SVGRectElement>(null);
   const smoothedPctRef = useRef(0); // smoothed display value — can go up fast, down slow
