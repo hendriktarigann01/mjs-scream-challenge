@@ -138,7 +138,7 @@ export default function LeaderboardPage() {
             Loading leaderboard…
           </div>
         ) : (
-          <LeaderboardContent entries={leaderboard} layout="default" />
+          <LeaderboardContent entries={leaderboard} />
         )}
       </motion.div>
 
