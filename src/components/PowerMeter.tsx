@@ -1,120 +1,113 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { dbToDisplayPct } from "@/lib/scoreUtils";
-import type { GameLevel } from "@/types/game";
+import Image from "next/image";
+import { getBlowTierByTime, type BlowTier } from "@/lib/scoreUtils";
 
 interface PowerMeterProps {
-  db: number;
-  level: GameLevel;
+  /** Durasi terbaik (max) yang sudah dicapai — bar hanya naik, tidak pernah turun */
+  bestDurationMs: number;
+  /** Apakah sedang aktif meniup — untuk animasi sway balon */
+  isBlowing: boolean;
 }
 
-const LIGHTNING_ID = "lightningClip";
+type SegmentKey = "weak" | "warm" | "strong" | "max";
+const TIER_ORDER: SegmentKey[] = ["weak", "warm", "strong", "max"];
 
-export default function PowerMeter({ db, level }: PowerMeterProps) {
-  const instantPct = dbToDisplayPct(db, level);
-  const fillRef = useRef<SVGRectElement>(null);
-  const glowRef = useRef<SVGRectElement>(null);
-  const smoothedPctRef = useRef(0); // smoothed display value — can go up fast, down slow
+const SEGMENT_COLORS: Record<SegmentKey, string> = {
+  weak: "#FF4500",
+  warm: "#FF8C00",
+  strong: "#FFD700",
+  max: "#32CD32",
+};
 
-  useEffect(() => {
-    const current = smoothedPctRef.current;
+const FLAVOR_TEXT: Record<BlowTier, string> = {
+  none: "Start blowing...",
+  weak: "That's more like it!",
+  medium: "Now we're talking!",
+  strong: "Keep it going!",
+  max: "YO that's insane!",
+};
 
-    if (instantPct > current) {
-      // rise immediately
-      smoothedPctRef.current = instantPct;
-    } else {
-      // decay slowly — at most 2 units per tick
-      smoothedPctRef.current = Math.max(0, current - 2);
-    }
+const TIER_ACTIVE: Record<BlowTier, number> = {
+  none: 0, weak: 1, medium: 2, strong: 3, max: 4,
+};
 
-    const pct = smoothedPctRef.current;
-    const svgHeight = 100;
-    const fillHeight = (pct / 100) * svgHeight;
-    const yPos = svgHeight - fillHeight;
+const BALLOON_SCALE: Record<BlowTier, number> = {
+  none: 0.45, weak: 0.6, medium: 0.75, strong: 0.88, max: 1,
+};
 
-    if (fillRef.current) {
-      fillRef.current.setAttribute("y", `${yPos}`);
-      fillRef.current.setAttribute("height", `${fillHeight}`);
-    }
-
-    if (glowRef.current) {
-      glowRef.current.setAttribute("y", `${yPos}`);
-      glowRef.current.setAttribute("height", `${fillHeight}`);
-      glowRef.current.style.opacity = pct > 10 ? "1" : "0";
-    }
-  }, [instantPct]);
+export default function PowerMeter({ bestDurationMs, isBlowing }: PowerMeterProps) {
+  // Tier selalu berdasarkan capaian terbaik — bar tidak pernah turun
+  const tier = getBlowTierByTime(bestDurationMs);
+  const activeCount = TIER_ACTIVE[tier];
+  const scale = BALLOON_SCALE[tier];
 
   return (
-    <div className="flex flex-col items-center gap-4 select-none">
-      <div className="relative flex items-center justify-center">
-        <svg
-          width="80"
-          height="160"
-          viewBox="0 0 60 100"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ overflow: "visible" }}
+    <div className="flex flex-col items-center w-full max-w-sm select-none gap-6">
+      {/* Flavor text */}
+      <p
+        className="text-white text-3xl text-center transition-all duration-300"
+      >
+        {FLAVOR_TEXT[tier]}
+      </p>
+
+      {/* Balloon + String */}
+      <div className="flex flex-col items-center">
+        <div
+          className="transition-transform duration-700 ease-out"
+          style={{ transform: `scale(${scale})`, transformOrigin: "bottom center" }}
         >
-          <defs>
-            <clipPath id={LIGHTNING_ID}>
-              <polygon points="38,2 18,52 32,52 22,98 52,38 36,38 50,2" />
-            </clipPath>
-
-            <filter
-              id="lightningGlow"
-              x="-50%"
-              y="-50%"
-              width="200%"
-              height="200%"
-            >
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {/* Ghost bolt */}
-          <polygon
-            points="38,2 18,52 32,52 22,98 52,38 36,38 50,2"
-            fill="rgba(255,255,255,0.08)"
-            stroke="rgba(255,255,255,0.2)"
-            strokeWidth="1"
+          <Image
+            src="/power/balloon.webp"
+            alt="balloon"
+            width={220}
+            height={260}
+            className="object-contain"
+            priority
           />
-
-          {/* Glow layer */}
-          <rect
-            ref={glowRef}
-            x="-10"
-            y="100"
-            width="80"
-            height="0"
-            fill="white"
-            clipPath={`url(#${LIGHTNING_ID})`}
-            filter="url(#lightningGlow)"
-            opacity="0"
-            style={{
-              transition:
-                "y 0.1s ease-out, height 0.1s ease-out, opacity 0.2s ease",
-            }}
+        </div>
+        {/* Tali: berayun saat meniup */}
+        <div
+          className={isBlowing ? "animate-[sway_1.5s_ease-in-out_infinite]" : ""}
+          style={{ marginTop: "-8px" }}
+        >
+          <Image
+            src="/power/string.webp"
+            alt="string"
+            width={20}
+            height={120}
+            className="object-contain"
           />
-
-          {/* Fill layer */}
-          <rect
-            ref={fillRef}
-            x="-10"
-            y="100"
-            width="80"
-            height="0"
-            fill="white"
-            clipPath={`url(#${LIGHTNING_ID})`}
-            style={{ transition: "y 0.1s ease-out, height 0.1s ease-out" }}
-          />
-        </svg>
+        </div>
       </div>
 
-      <p className="text-white/50 text-sm tracking-widest uppercase">Power</p>
+      {/* Power bar — mengisi berdasarkan waktu terbaik */}
+      <div className="w-full flex flex-col gap-2">
+        <div className="flex w-full h-4 rounded-full overflow-hidden gap-1">
+          {TIER_ORDER.map((seg, i) => (
+            <div
+              key={seg}
+              className="flex-1 rounded-full transition-all duration-500"
+              style={{
+                backgroundColor: i < activeCount
+                  ? SEGMENT_COLORS[seg]
+                  : "rgba(255,255,255,0.15)",
+              }}
+            />
+          ))}
+        </div>
+        <div className="flex w-full justify-between px-1">
+          {TIER_ORDER.map((seg) => (
+            <span
+              key={seg}
+              className="text-xs uppercase tracking-widest"
+              style={{ color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}
+            >
+              {seg.charAt(0).toUpperCase() + seg.slice(1)}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
