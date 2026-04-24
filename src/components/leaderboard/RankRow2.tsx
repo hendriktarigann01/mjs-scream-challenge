@@ -1,7 +1,7 @@
 import Image from "next/image";
-import type { LeaderboardEntry, AvatarId } from "@/types/game";
-import { getAvatarSrc } from "@/components/constants/avatars";
-import { formatDuration } from "@/lib/scoreUtils";
+import { LeaderboardEntry, AvatarId } from "@/types/game";
+import { getAvatarImageSrc } from "@/constants/gameImages";
+import { formatTimeMs } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_AVATAR: AvatarId = "profile-1";
@@ -18,8 +18,8 @@ const TREND_BY_RANK: Record<number, RankTrend> = {
 
 const TREND_ICON = { up: "▲", down: "▼", neutral: "--" } as const;
 const TREND_COLOR = {
-  up:      "text-brand-primary",
-  down:    "text-brand-primary",
+  up: "text-brand-primary",
+  down: "text-brand-primary",
   neutral: "text-brand-primary",
 } as const;
 
@@ -32,25 +32,24 @@ export function RankRow({ entry, rank }: RankRowProps) {
   const trend = TREND_BY_RANK[rank] ?? "neutral";
 
   return (
-    <div className="flex items-center gap-3 bg-brand-primary-dark border border-brand-primary rounded-2xl w-full px-4 py-3">
+    <div className="flex items-center gap-3 bg-brand-primary-dark border border-brand-primary rounded-2xl px-4 py-3">
       {/* Avatar */}
       <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
         <Image
-          src={getAvatarSrc((entry.avatar as AvatarId) ?? DEFAULT_AVATAR)}
+          src={getAvatarImageSrc((entry.avatar as AvatarId) ?? DEFAULT_AVATAR)}
           alt={entry.player_name}
-          width={100}
-          height={100}
+          fill
           className="object-cover"
         />
       </div>
 
-      {/* Name + duration */}
+      {/* Name + time */}
       <div className="flex-1 min-w-0">
         <p className="font-bold text-brand-primary text-sm uppercase tracking-wide truncate">
           {entry.player_name}
         </p>
         <p className="text-xs text-brand-primary font-medium font-mono">
-          {formatDuration(entry.duration_ms)}
+          {formatTimeMs(entry.time_ms)}
         </p>
       </div>
 
@@ -60,7 +59,9 @@ export function RankRow({ entry, rank }: RankRowProps) {
       </div>
 
       {/* Trend */}
-      <span className={cn("text-xs font-bold w-4 text-center", TREND_COLOR[trend])}>
+      <span
+        className={cn("text-xs font-bold w-4 text-center", TREND_COLOR[trend])}
+      >
         {TREND_ICON[trend]}
       </span>
     </div>

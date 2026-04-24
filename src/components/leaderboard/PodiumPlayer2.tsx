@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { Crown } from "lucide-react";
-import type { LeaderboardEntry, AvatarId } from "@/types/game";
-import { getAvatarSrc } from "@/components/constants/avatars";
-import { formatDuration } from "@/lib/scoreUtils";
+import { LeaderboardEntry, AvatarId } from "@/types/game";
+import { getAvatarImageSrc } from "@/constants/gameImages";
+import { formatTimeMs } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_AVATAR: AvatarId = "profile-1";
@@ -50,7 +50,9 @@ export function PodiumPlayer({ entry, rank }: PodiumPlayerProps) {
           )}
         >
           <Image
-            src={getAvatarSrc((entry.avatar as AvatarId) ?? DEFAULT_AVATAR)}
+            src={getAvatarImageSrc(
+              (entry.avatar as AvatarId) ?? DEFAULT_AVATAR,
+            )}
             alt={entry.player_name}
             fill
             className="object-cover"
@@ -71,7 +73,7 @@ export function PodiumPlayer({ entry, rank }: PodiumPlayerProps) {
         </div>
       </div>
 
-      {/* Podium bar dengan stats */}
+      {/* Podium bar with stats */}
       <div
         className={cn(
           "w-30 rounded-t-xl shadow-sm transition-all duration-500",
@@ -80,9 +82,8 @@ export function PodiumPlayer({ entry, rank }: PodiumPlayerProps) {
           podiumBg,
         )}
       >
-        {/* duration_ms adalah field yang benar sesuai skema Supabase */}
         <span className={cn("font-bold text-xs font-mono", statsColor)}>
-          {formatDuration(entry.duration_ms)}
+          {formatTimeMs(entry.time_ms)}
         </span>
         <span
           className={cn(
