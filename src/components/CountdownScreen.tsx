@@ -18,6 +18,7 @@ export default function CountdownScreen({ onComplete }: CountdownScreenProps) {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(true);
     const hideTimer = setTimeout(() => setVisible(false), 700);
     const nextTimer = setTimeout(() => setIndex((i) => i + 1), 900);
@@ -43,14 +44,13 @@ export default function CountdownScreen({ onComplete }: CountdownScreenProps) {
         <span
           className="font-black uppercase leading-none"
           style={{
-            fontFamily: "'Bebas Neue', sans-serif",
             fontSize: isScream
               ? "clamp(4rem, 15vw, 10rem)"
               : "clamp(8rem, 25vw, 18rem)",
-            color: isScream ? "#FFFFFF" : "white",
+            color: isScream ? "#005473" : "#005473",
             textShadow: isScream
-              ? "0 0 80px #FFFFFF, 0 0 160px #FFFFFF66"
-              : "0 0 40px #ffffff44",
+              ? "0 0 80px #005473, 0 0 160px #00547366"
+              : "0 0 40px #00547344",
             display: "block",
             textAlign: "center",
           }}

@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Chewy } from "next/font/google"; // Ganti Bebas_Neue dengan Chewy
 import "./globals.css";
 
-const bebasNeue = Bebas_Neue({
+const chewy = Chewy({
   weight: "400",
   subsets: ["latin"],
-  variable: "--font-bebas",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-chewy",
   display: "swap",
 });
 
@@ -26,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${bebasNeue.variable} ${inter.variable}`}>
+    <html lang="en" className={`${chewy.variable}`}>
       <body className="bg-[#0169dc] overflow-hidden">{children}</body>
     </html>
   );

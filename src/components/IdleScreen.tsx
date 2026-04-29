@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 interface IdleScreenProps {
   onStart: () => void;
 }
@@ -9,32 +11,29 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden">
       <div className="relative z-10 flex flex-col items-center gap-12 px-8 max-w-xl w-full">
         <div className="flex flex-col items-center gap-2">
-          <p className="text-white/60 tracking-[0.4em] text-sm uppercase">
-            Are you brave enough?
-          </p>
-          <h1
-            className="text-white text-center text-[clamp(4rem,12vw,9rem)] leading-none font-black uppercase"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-            }}
-          >
-            Scream
+          <h1 className="text-brand-primary tracking-wide text-center text-7xl leading-none font-black uppercase">
+            HOW LOUD IS YOUR
             <br />
-            Challenge
+            VOICE?
           </h1>
         </div>
 
         <div
-          className="animate-bounce text-white/80 text-sm tracking-widest uppercase"
+          className="text-xl animate-bounce text-brand-primary/80 tracking-widest uppercase"
           style={{ animationDuration: "2s" }}
         >
           Step up to the mic
         </div>
         <button
           onClick={onStart}
-          className="w-36 h-10 px-6 py-3 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm tracking-widest uppercase rounded-xl transition-all duration-200 backdrop-blur-sm"
+          className={cn(
+            "w-64 h-16 px-12 py-3 rounded-full font-bold text-lg uppercase tracking-widest transition-all",
+            "bg-[#C0E6F9] border-[3px] border-[#00698F] shadow-[0_4px_0_0_#00698F] text-brand-primary",
+            "active:translate-y-[2px] active:shadow-[0_2px_0_0_#00698F]",
+            "hover:brightness-105",
+          )}
         >
-          Next
+          Play game
         </button>
       </div>
     </div>

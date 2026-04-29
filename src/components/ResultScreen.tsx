@@ -28,48 +28,41 @@ export default function ResultScreen({ result, onReset }: ResultScreenProps) {
   }, [onReset]);
 
   return (
-    <div
-      className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor: isWin ? "#0169dc" : "#0169dc" }}
-    >
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8">
         <h1
-          className="font-black uppercase leading-none text-white"
+          className="font-black uppercase leading-none text-brand-primary"
           style={{
-            fontFamily: "'Bebas Neue', sans-serif",
             fontSize: "clamp(3rem, 10vw, 6rem)",
           }}
         >
-          {isWin ? "Congratulations!" : "So Close!"}
+          {isWin ? "CONGRATULATION" : "SO CLOSE!"}
         </h1>
 
-        <p className="text-white/70 tracking-widest text-sm uppercase">
-          {isWin ? "You nailed it!" : "Give it another try!"}
+        <p className="text-brand-primary/80 tracking-widest text-sm uppercase font-black">
+          {isWin ? "You nailed it!" : "Get it another next"}
         </p>
 
         <div className="flex flex-col items-center gap-1 mt-4">
-          <p className="text-white/40 text-sm tracking-widest uppercase">
+          <p className="text-brand-primary/60 text-sm tracking-widest uppercase font-black">
             Next player in
           </p>
-          <span
-            className="text-white/80 text-4xl font-black"
-            style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-          >
+          <span className="text-brand-primary text-4xl font-black">
             {countdown}
           </span>
         </div>
 
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex items-center gap-4 mt-2 flex-wrap justify-center">
           {isWin && (
             <a
               href="https://mjs-spin-wheel.vercel.app/"
-                rel="noopener noreferrer"
-              className="bg-white text-[#0169dc] font-black tracking-widest uppercase rounded-full hover:bg-white/90 transition-all duration-200"
+              rel="noopener noreferrer"
+              className="bg-[#C0E6F9] text-brand-primary font-black tracking-widest uppercase rounded-full hover:brightness-95 transition-all duration-200"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "1.1rem",
+                fontSize: "1rem",
                 padding: "12px 24px",
                 display: "inline-block",
+                border: "3px solid #00698F",
               }}
             >
               Spin the Wheel!
@@ -78,7 +71,7 @@ export default function ResultScreen({ result, onReset }: ResultScreenProps) {
 
           <button
             onClick={onReset}
-            className="border-2 cursor-pointer border-white/30 text-white/70 text-sm tracking-widest uppercase rounded-full hover:bg-white/10 transition-all duration-200"
+            className="border-2 cursor-pointer border-[#00698F] text-brand-primary text-sm tracking-widest uppercase rounded-full hover:bg-[#C0E6F9]/20 transition-all duration-200 font-black"
             style={{ padding: "12px 32px" }}
           >
             Play Again

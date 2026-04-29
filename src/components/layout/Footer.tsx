@@ -4,13 +4,12 @@ interface FooterProps {
   className?: string;
 }
 
-export function Footer({ className }: FooterProps) {
+export function Footer({}: FooterProps) {
   return (
     <footer
       className={cn(
-        "px-6 pb-5 text-white text-xs font-bold text-brand-primary uppercase tracking-widest",
-        "text-center md:text-left",
-        className,
+        "relative z-20 w-full uppercase tracking-widest font-bold text-brand-primary text-xl",
+        "h-16 flex items-center justify-center",
       )}
     >
       By MJ Solution Indonesia

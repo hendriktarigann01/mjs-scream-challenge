@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
+import Image from "next/image";
 import type { GameState, GameResult, GameLevel } from "@/types/game";
 import IdleScreen from "@/components/IdleScreen";
 import InstructionScreen from "@/components/InstructionScreen";
@@ -14,8 +15,6 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [result, setResult] = useState<GameResult | null>(null);
   const [level, setLevel] = useState<GameLevel>("normal");
-  const [videoReady, setVideoReady] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleStart = useCallback(() => setGameState("instruction"), []);
 
@@ -40,38 +39,46 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative w-full h-screen overflow-hidden">
+    <main className="relative w-full h-screen overflow-auto flex flex-col">
       <Header />
-      <video
-        ref={videoRef}
-        src="/background-video.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        onCanPlay={() => setVideoReady(true)}
-        className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
+      <Image
+        src="/common/background.png"
+        alt="Background"
+        width={1000}
+        height={600}
+        priority
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
-
-      {videoReady && (
-        <div className="relative z-10 w-full h-full">
-          {gameState === "idle" && <IdleScreen onStart={handleStart} />}
-          {gameState === "instruction" && (
-            <InstructionScreen onStartGame={handleStartGame} />
-          )}
-          {gameState === "countdown" && (
-            <CountdownScreen onComplete={handleCountdownComplete} />
-          )}
-          {gameState === "playing" && (
-            <GameplayScreen level={level} onFinish={handleGameFinish} />
-          )}
-          {gameState === "result" && result && (
-            <ResultScreen result={result} onReset={handleReset} />
-          )}
-        </div>
-      )}
-
-      <Footer />
+      <Image
+        src="/common/dog.webp"
+        alt="dog"
+        width={300}
+        height={300}
+        className="absolute left-0 bottom-0"
+      />
+      <Image
+        src="/common/cat.webp"
+        alt="cat"
+        width={300}
+        height={300}
+        className="absolute right-0 bottom-0"
+      />
+      <div className="relative z-10 w-full h-full">
+        {gameState === "idle" && <IdleScreen onStart={handleStart} />}
+        {gameState === "instruction" && (
+          <InstructionScreen onStartGame={handleStartGame} />
+        )}
+        {gameState === "countdown" && (
+          <CountdownScreen onComplete={handleCountdownComplete} />
+        )}
+        {gameState === "playing" && (
+          <GameplayScreen level={level} onFinish={handleGameFinish} />
+        )}
+        {gameState === "result" && result && (
+          <ResultScreen result={result} onReset={handleReset} />
+        )}
+      </div>
+      <Footer className="relative z-20" />
     </main>
   );
 }

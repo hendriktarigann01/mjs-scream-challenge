@@ -110,15 +110,15 @@ export default function GameplayScreen({
                 .toString(16)
                 .padStart(2, "0")} 0%, transparent 65%)`
             : "none",
+          zIndex: 1,
         }}
       />
 
       <div className="relative z-10 flex flex-col items-center gap-10 w-full px-8">
         <div className="flex items-center gap-3">
           <h1
-            className="text-white font-black uppercase text-[clamp(2rem,7vw,4rem)] leading-none"
+            className="text-brand-primary font-black uppercase text-[clamp(2rem,7vw,4rem)] leading-none"
             style={{
-              fontFamily: "'Bebas Neue', sans-serif",
               letterSpacing: "0.1em",
             }}
           >
@@ -128,18 +128,13 @@ export default function GameplayScreen({
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
-        {/* TEMP DEBUG — remove after calibration */}
-        {/* <p className="text-white/60 font-mono text-lg">{db.toFixed(1)} dBFS</p> */}
-
         <div className="flex flex-col items-center gap-6">
           {/* countdown timer */}
           <span
             className="font-black leading-none tabular-nums"
             style={{
-              fontFamily: "'Bebas Neue', sans-serif",
               fontSize: "clamp(3rem,10vw,5rem)",
-              color: timeLeft <= 5 ? "#FF4500" : "white",
-              textShadow: timeLeft <= 5 ? "0 0 40px #FF450088" : "none",
+              color: timeLeft <= 5 ? "#FF4500" : "#005473",
             }}
           >
             {timeLeft}
@@ -147,7 +142,7 @@ export default function GameplayScreen({
 
           <PowerMeter db={db} level={level} />
 
-          <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-100"
               style={{
@@ -161,9 +156,8 @@ export default function GameplayScreen({
 
           {isHolding && (
             <p
-              className="text-yellow-300 tracking-widest uppercase animate-pulse"
+              className="text-brand-primary tracking-widest uppercase animate-pulse font-black"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "1rem",
               }}
             >
@@ -174,7 +168,7 @@ export default function GameplayScreen({
         </div>
 
         {!isActive && !error && (
-          <p className="text-white/40 text-sm animate-pulse">
+          <p className="text-brand-primary/60 text-sm animate-pulse">
             Requesting microphone...
           </p>
         )}

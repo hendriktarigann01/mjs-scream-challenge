@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --font-chewy: var(--font-chewy);
+}
+
+@theme inline {
+  --color-brand-primary: #005473; /* dark blue */
+  --color-brand-primary-dark: #ffd744; /* amber */
+  --color-brand-primary-light: #ffd288; /* light-amber */
+}
+
+:root {
+  font-family: var(--font-chewy);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
