@@ -53,22 +53,6 @@ export default function ResultScreen({ result, onReset }: ResultScreenProps) {
         </div>
 
         <div className="flex items-center gap-4 mt-2 flex-wrap justify-center">
-          {isWin && (
-            <a
-              href="https://mjs-spin-wheel.vercel.app/"
-              rel="noopener noreferrer"
-              className="bg-[#C0E6F9] text-brand-primary font-black tracking-widest uppercase rounded-full hover:brightness-95 transition-all duration-200"
-              style={{
-                fontSize: "1rem",
-                padding: "12px 24px",
-                display: "inline-block",
-                border: "3px solid #00698F",
-              }}
-            >
-              Spin the Wheel!
-            </a>
-          )}
-
           <button
             onClick={onReset}
             className="border-2 cursor-pointer border-[#00698F] text-brand-primary text-sm tracking-widest uppercase rounded-full hover:bg-[#C0E6F9]/20 transition-all duration-200 font-black"

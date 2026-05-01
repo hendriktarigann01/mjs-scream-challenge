@@ -140,7 +140,9 @@ export default function GameplayScreen({
             {timeLeft}
           </span>
 
-          <PowerMeter db={db} level={level} />
+          <div className="flex">
+            <PowerMeter db={db} level={level} />
+          </div>
 
           <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
             <div

@@ -42,7 +42,7 @@ export default function Home() {
     <main className="relative w-full h-screen overflow-auto flex flex-col">
       <Header />
       <Image
-        src="/common/background.png"
+        src="/common/background.webp"
         alt="Background"
         width={1000}
         height={600}
