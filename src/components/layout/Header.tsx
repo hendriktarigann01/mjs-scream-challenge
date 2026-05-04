@@ -19,20 +19,20 @@ export function Header() {
         <div className="flex gap-5">
           <Link href="/" aria-label="Home">
             <Image
-              src="/happify.png"
+              src="/inabuyer.png"
               width={120}
               height={48}
-              alt="Happify"
+              alt="Inabuyer"
               className="h-10 w-auto md:h-14"
               priority
             />
           </Link>
           <Link href="/" aria-label="Home">
             <Image
-              src="/petfest.png"
+              src="/vision-works.png"
               width={120}
               height={48}
-              alt="PetFest"
+              alt="Vision Works"
               className="h-10 w-auto md:h-14"
               priority
             />

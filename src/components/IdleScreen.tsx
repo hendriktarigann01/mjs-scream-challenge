@@ -12,9 +12,7 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
       <div className="relative z-10 flex flex-col items-center gap-12 px-8 max-w-xl w-full">
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-brand-primary tracking-wide text-center text-7xl leading-none font-black uppercase">
-            HOW LOUD IS YOUR
-            <br />
-            VOICE?
+            HOW LOUD IS YOUR VOICE?
           </h1>
         </div>
 
@@ -28,8 +26,8 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
           onClick={onStart}
           className={cn(
             "w-64 h-16 px-12 py-3 rounded-full font-bold text-lg uppercase tracking-widest transition-all",
-            "bg-[#C0E6F9] border-[3px] border-[#00698F] shadow-[0_4px_0_0_#00698F] text-brand-primary",
-            "active:translate-y-[2px] active:shadow-[0_2px_0_0_#00698F]",
+            "bg-white border-[3px] border-brand-primary shadow-[0_4px_0_0_#191B34] text-brand-primary",
+            "active:translate-y-[2px] active:shadow-[0_2px_0_0_#191B34]",
             "hover:brightness-105",
           )}
         >

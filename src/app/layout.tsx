@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Chewy } from "next/font/google"; // Ganti Bebas_Neue dengan Chewy
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const chewy = Chewy({
-  weight: "400",
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-chewy",
+  variable: "--font-plus-jakarta",
   display: "swap",
 });
 
@@ -20,8 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${chewy.variable}`}>
-      <body className="bg-[#0169dc] overflow-hidden">{children}</body>
+    <html lang="en" className={plusJakartaSans.variable}>
+      <body className="bg-[#0169dc] font-plus-jakarta overflow-hidden">
+        {children}
+      </body>
     </html>
   );
 }

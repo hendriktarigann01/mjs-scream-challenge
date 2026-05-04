@@ -49,20 +49,6 @@ export default function Home() {
         priority
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
-      <Image
-        src="/common/dog.webp"
-        alt="dog"
-        width={300}
-        height={300}
-        className="absolute left-0 bottom-0"
-      />
-      <Image
-        src="/common/cat.webp"
-        alt="cat"
-        width={300}
-        height={300}
-        className="absolute right-0 bottom-0"
-      />
       <div className="relative z-10 w-full h-full">
         {gameState === "idle" && <IdleScreen onStart={handleStart} />}
         {gameState === "instruction" && (

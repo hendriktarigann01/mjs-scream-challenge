@@ -144,17 +144,7 @@ export default function GameplayScreen({
             <PowerMeter db={db} level={level} />
           </div>
 
-          <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-100"
-              style={{
-                width: `${holdPct}%`,
-                background: isHolding
-                  ? "linear-gradient(90deg, #FFD700, #FF4500)"
-                  : "transparent",
-              }}
-            />
-          </div>
+      
 
           {isHolding && (
             <p

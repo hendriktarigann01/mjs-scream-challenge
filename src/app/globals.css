@@ -1,17 +1,13 @@
 @import "tailwindcss";
 
-@theme {
-  --font-chewy: var(--font-chewy);
+:root {
+  font-family: var(--font-plus-jakarta);
 }
 
 @theme inline {
-  --color-brand-primary: #005473; /* dark blue */
-  --color-brand-primary-dark: #ffd744; /* amber */
-  --color-brand-primary-light: #ffd288; /* light-amber */
-}
-
-:root {
-  font-family: var(--font-chewy);
+  --color-brand-primary: #191b34; /* blue */
+  --color-brand-primary-dark: #212121; /* dark-gray */
+  --color-brand-primary-light: #ffac00cc; /* light-amber */
 }
 
 * {
