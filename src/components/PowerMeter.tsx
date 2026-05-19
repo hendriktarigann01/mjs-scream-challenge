@@ -1,21 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { dbToDisplayPct } from "@/lib/scoreUtils";
+import { getFlavorText, BAR_ZONES, BAR_WIN } from "@/lib/scoreUtils";
 import type { GameLevel } from "@/types/game";
 
 interface PowerMeterProps {
-  db: number;
-  level: GameLevel;
+  barValue: number;
+  comboMultiplier: number;
 }
-
-// Index 0 = bottom (green), index 3 = top (red)
-const ZONES = [
-  { color: "#00AD01", from: 0, to: 25 },
-  { color: "#FED500", from: 25, to: 50 },
-  { color: "#DE7A00", from: 50, to: 75 },
-  { color: "#CC1517", from: 75, to: 100 },
-];
 
 const DIVIDER_COLOR = "#191B34";
 const EMPTY_COLOR = "#D9D9D9";
@@ -37,52 +29,55 @@ const Divider = () => (
   />
 );
 
-export default function PowerMeter({ db, level }: PowerMeterProps) {
-  const instantPct = dbToDisplayPct(db, level);
-  const smoothedPctRef = useRef(0);
+export default function PowerMeter({ barValue, comboMultiplier }: PowerMeterProps) {
   const zoneRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Calculate percentage 0-100 based on BAR_WIN
+  const pct = Math.min(100, Math.max(0, (barValue / BAR_WIN) * 100));
+
   useEffect(() => {
-    const current = smoothedPctRef.current;
-    if (instantPct > current) {
-      smoothedPctRef.current = instantPct;
-    } else {
-      smoothedPctRef.current = Math.max(0, current - 2);
-    }
+    // BAR_ZONES are defined in terms of values (0-100, 100-150, 150-200, 200-300).
+    // We map pct (0-100) to these zones. 
+    // Since BAR_WIN is 300, pct represents the overall fill.
+    // Let's use the actual value for filling.
+    const currentValue = barValue;
 
-    const pct = smoothedPctRef.current;
-
-    ZONES.forEach((zone, i) => {
+    BAR_ZONES.forEach((zone, i) => {
       const el = zoneRefs.current[i];
       if (!el) return;
 
-      if (pct >= zone.to) {
+      if (currentValue >= zone.to) {
         el.style.background = zone.color;
-      } else if (pct > zone.from) {
-        const filledPct = ((pct - zone.from) / (zone.to - zone.from)) * 100;
+      } else if (currentValue > zone.from) {
+        const filledPct = ((currentValue - zone.from) / (zone.to - zone.from)) * 100;
         el.style.background = `linear-gradient(to top, ${zone.color} ${filledPct}%, ${EMPTY_COLOR} ${filledPct}%)`;
       } else {
         el.style.background = EMPTY_COLOR;
       }
     });
-  }, [instantPct]);
+  }, [barValue]);
 
   // Render dari atas ke bawah: Divider, Zone[3], Divider, Zone[2], ..., Zone[0], Divider
-  // ZONES dibalik supaya render atas = red, bawah = green
-  const zonesTopToBottom = [...ZONES].reverse();
+  // BAR_ZONES dibalik supaya render atas = red, bawah = green
+  const zonesTopToBottom = [...BAR_ZONES].reverse();
+  const flavorText = getFlavorText(barValue, comboMultiplier);
 
   return (
-    <div className="flex flex-col items-center gap-6 select-none">
+    <div className="flex flex-col items-center gap-6 select-none relative w-full justify-center">
       <div
-        className="flex flex-col items-center"
+        className="flex flex-col items-center relative"
         style={{ width: `${DIV_W}px` }}
       >
         {zonesTopToBottom.map((zone, i) => {
           // index di zoneRefs tetap pakai original index (0=green, 3=red)
-          const originalIndex = ZONES.length - 1 - i;
+          const originalIndex = BAR_ZONES.length - 1 - i;
           return (
-            <div key={zone.from} className="flex flex-col items-center w-full">
+            <div key={zone.from} className="flex flex-col items-center w-full relative">
               <Divider />
+              {/* Marker Text */}
+              <div className="absolute right-[60px] top-[-8px]">
+                <span className="text-[#191B34] font-bold text-lg font-sans tabular-nums">{zone.to}</span>
+              </div>
               <div
                 ref={(el) => {
                   zoneRefs.current[originalIndex] = el;
@@ -99,11 +94,16 @@ export default function PowerMeter({ db, level }: PowerMeterProps) {
           );
         })}
         {/* Divider paling bawah */}
-        <Divider />
+        <div className="relative flex flex-col items-center w-full">
+            <Divider />
+            <div className="absolute right-[60px] top-[-8px]">
+              <span className="text-[#191B34] font-bold text-lg font-sans tabular-nums">0</span>
+            </div>
+        </div>
       </div>
 
-      <p className="text-[#005473]/70 text-sm tracking-widest uppercase font-black">
-        Power
+      <p className="text-[#191B34] text-sm tracking-widest uppercase font-black text-center mt-2 h-8">
+        {flavorText}
       </p>
     </div>
   );

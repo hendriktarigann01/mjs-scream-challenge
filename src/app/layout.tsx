@@ -15,13 +15,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en" className={plusJakartaSans.variable}>
-      <body className="bg-[#0169dc] font-plus-jakarta overflow-hidden">
-        {children}
+      <body className="font-plus-jakarta antialiased bg-[#0169dc]">
+        <div className="min-h-screen flex flex-col">{children}</div>
       </body>
     </html>
   );

@@ -7,7 +7,7 @@
 ## Project Summary
 
 **Tujuan Aplikasi**
-Game interaktif berbasis mikrofon untuk event/booth. Pemain meniup mic dan menahan aliran udara selama mungkin dalam 120 detik. Skor (durasi tiup terpanjang) disimpan ke leaderboard Supabase. Pemenang mendapat link ke "Spin the Wheel". Dibuat untuk brand event **MJ Solution Indonesia × Arch ID**.
+Game interaktif berbasis mikrofon untuk event/booth. Pemain berteriak ke mic selama 60 detik. Skor diakumulasi berdasarkan kekuatan suara (dB) dan dikalikan dengan Combo. Skor disimpan ke leaderboard Supabase. Pemenang (skor >= 300) mendapat link ke "Spin the Wheel". Dibuat untuk brand event **MJ Solution Indonesia × Arch ID**.
 
 **Tech Stack Utama**
 
@@ -43,24 +43,23 @@ app/page.tsx [Home]
                  → CountdownScreen.onComplete()   [3-2-1-SCREAM! timer ~4 detik]
                  → phase: "playing"
                       → GameplayScreen
-                           ├─ useMicrophone.start()        [Web Audio API: getUserMedia → AnalyserNode]
-                           │    └─ tick loop: getFloatFrequencyData() → setState(db dBFS)
-                           ├─ useEffect(db): db >= DB_THRESHOLD → track blowStart + maxDuration
-                           └─ setInterval (1s): timeLeft countdown 120s → finish(timeExpired=true)
+                           ├─ useMicrophone.start()
+                           │    └─ tick loop: hitung `db`, akumulasi `Score` = `rate * combo * elapsedSec`
+                           ├─ Bar Meter mentok di 300 (Syarat Win), tapi Score terus naik sampai 60s
+                           └─ setInterval (1s): timeLeft countdown 60s → finish(score >= 300)
                                 → onFinish(GameResult)
                                 → phase: "result"
-                                     → ResultScreen
-                                          ├─ [isWin=true] useLeaderboard.addScore()
-                                          │    └─ supabase.from("leaderboard").insert(...)
-                                          ├─ Auto-reset countdown 5s → onReset() → phase: "register"
-                                          └─ [isWin=true] Link ke https://mjs-spin-wheel.vercel.app/
+                                     → WinModal (sebagai overlay di atas GameplayScreen)
+                                          ├─ [isWin=true] useLeaderboard.addScore() (insert skor)
+                                          ├─ Auto-reset jika kalah → phase: "register"
+                                          └─ [isWin=true] Link ke Spin the Wheel
 ```
 
 ### 🏆 Alur Leaderboard
 ```
 app/leaderboard/page.tsx [LeaderboardPage]
   └─ useLeaderboard.fetchLeaderboard()
-       └─ supabase.from("leaderboard").select("*").order("duration_ms", desc).limit(10)
+       └─ supabase.from("leaderboard").select("*").order("score", desc).limit(10)
             → LeaderboardContent
                  ├─ PodiumPlayer (rank 1-3)   [top 3 di podium]
                  └─ RankRow (rank 4-10)       [list sisanya]
@@ -218,22 +217,22 @@ mjs-scream-challenge/
 | `id` | uuid / string | Primary key |
 | `player_name` | text | Nama pemain |
 | `avatar` | text | ID avatar (`profile-1` s/d `profile-6`) |
-| `duration_ms` | integer | Durasi tiupan terpanjang dalam ms |
+| `score` | integer | Total skor teriakan pemain |
 | `level` | text | `"normal"` atau `"hard"` |
 | `created_at` | timestamp | Waktu insert (auto by Supabase) |
 
-- **RLS**: Tidak terdeteksi dari kode (menggunakan anon key publik tanpa token user → kemungkinan RLS off atau policy insert open)
-- **Relasi**: Satu tabel saja, tidak ada relasi
-- **Migration/Seed**: Not found (tidak ada folder `supabase/migrations`)
+- **Skema Baru**: Menggunakan kolom `score` (Integer) sebagai metrik utama, menggantikan `duration_ms`.
+- **RLS**: Tidak terdeteksi dari kode (menggunakan anon key publik).
+- **Relasi**: Satu tabel saja, tidak ada relasi.
 
 ### Level Config (scoreUtils.ts)
 
-| Level | DB_THRESHOLD | DB_MAX | WIN_HOLD_SECONDS |
+| Level | DB_THRESHOLD | DB_MAX | MAX_BAR_RATE |
 |---|---|---|---|
-| `normal` | -65 dBFS | -30 dBFS | 20 detik (game timer 120s) |
-| `hard` | -55 dBFS | -20 dBFS | 20 detik (game timer 120s) |
+| `normal` | -70 dBFS | -30 dBFS | 20 unit/sec |
+| `hard` | -60 dBFS | -10 dBFS | 15 unit/sec |
 
-> Catatan: `WIN_HOLD_SECONDS` di config = 20, namun `GAME_DURATION_S` di `GameplayScreen` = 120. `isWin` ditentukan dari `timeExpired` (timer habis), bukan dari target hold duration.
+> Catatan: Timer game adalah `GAME_DURATION_S = 60`. Combo ditentukan secara dinamis berdasarkan `Score` (x1 untuk 0-299, x5 untuk 1500+). Efek terbang angka zigzag menandakan boost poin secara live.
 
 ---
 
