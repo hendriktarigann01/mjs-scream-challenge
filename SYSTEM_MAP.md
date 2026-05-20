@@ -80,15 +80,18 @@ mjs-scream-challenge/
 ├── postcss.config.mjs
 ├── tsconfig.json
 ├── public/
-│   ├── arch_id.png
-│   ├── mjs_logo.png
-│   ├── mjs_logo_text.png
-│   ├── background-video.mp4
+│   ├── in-lite.webp
+│   ├── lamp.webp                        ← Gambar lampu untuk PowerMeter (fill effect)
+│   ├── mjs-white.webp
+│   ├── common/
+│   │   ├── background.webp
+│   │   ├── combo-x3.gif                 ← (tidak dipakai lagi, diganti glow effect)
+│   │   ├── combo-x5.gif                 ← (tidak dipakai lagi, diganti glow effect)
+│   │   ├── lamp.webp
+│   │   └── power-meter.webp             ← (tidak dipakai lagi, diganti lamp.webp)
+│   ├── icons/
 │   ├── avatars/
 │   │   ├── profile-1.png … profile-6.png
-│   └── power/
-│       ├── balloon.webp
-│       └── string.webp
 └── src/
     ├── app/
     │   ├── globals.css
@@ -97,7 +100,6 @@ mjs-scream-challenge/
     │   └── leaderboard/
     │       └── page.tsx                 ← Halaman leaderboard
     ├── components/
-    │   ├── IdleScreen.tsx               ← (Unused di page.tsx, masih ada)
     │   ├── RegisterScreen.tsx
     │   ├── InstructionScreen.tsx
     │   ├── CountdownScreen.tsx
@@ -144,8 +146,7 @@ mjs-scream-challenge/
 | `src/components/CountdownScreen.tsx` | `CountdownScreen` | Countdown animasi 3→2→1→SCREAM! (~4 detik) |
 | `src/components/GameplayScreen.tsx` | `GameplayScreen` | Core gameplay: mic → dB tracking → timer → blow duration scoring |
 | `src/components/ResultScreen.tsx` | `ResultScreen` | Tampil hasil + auto-submit skor ke Supabase + countdown reset |
-| `src/components/PowerMeter.tsx` | `PowerMeter` | Visualisasi kekuatan tiupan: balloon + bar 4 segmen (Weak→Max) |
-| `src/components/IdleScreen.tsx` | `IdleScreen` | Layar idle "step up to the mic" — **tidak digunakan** di `page.tsx` saat ini |
+| `src/components/PowerMeter.tsx` | `PowerMeter` | Visualisasi kekuatan: lampu fill effect (clip-path fill dari bawah ke atas) + efek progressive glow blur saat score >= 300 |
 
 ### Components — Layout
 
@@ -232,8 +233,6 @@ mjs-scream-challenge/
 | `normal` | -70 dBFS | -30 dBFS | 20 unit/sec |
 | `hard` | -60 dBFS | -10 dBFS | 15 unit/sec |
 
-> Catatan: Timer game adalah `GAME_DURATION_S = 60`. Combo ditentukan secara dinamis berdasarkan `Score` (x1 untuk 0-299, x5 untuk 1500+). Efek terbang angka zigzag menandakan boost poin secara live.
-
 ---
 
 ## External Integrations
@@ -256,8 +255,7 @@ mjs-scream-challenge/
 | 3 | **`formatTimeMs` di `lib/utils.ts`** | `PodiumPlayer` dan `RankRow` mengimpor dari `@/lib/utils` tetapi fungsi ini **tidak ada** di `lib/utils.ts` (hanya ada `cn`) → compile error |
 | 4 | **`entry.time_ms`** | `PodiumPlayer` menggunakan `entry.time_ms` namun skema Supabase dan `LeaderboardEntry` type menggunakan `duration_ms` → field mismatch, akan selalu `undefined` |
 | 5 | **RLS Supabase** | Anon key di-expose ke client (`NEXT_PUBLIC_`). Jika RLS tidak dikonfigurasi, siapapun bisa insert/delete data leaderboard langsung via API Supabase |
-| 6 | **`IdleScreen.tsx`** | Komponen ini ada tapi tidak digunakan di `page.tsx` (phase `"idle"` tidak ada di `GamePhase` type) — dead code |
-| 7 | **Bebas Neue font** | Tidak diimport secara resmi (Next.js `next/font` atau link tag). Dipanggil via `fontFamily: "'Bebas Neue', sans-serif"` di inline style — font hanya tampil jika sudah ter-install di browser/system |
-| 8 | **`WIN_HOLD_SECONDS` vs `GAME_DURATION_S`** | Konstanta 20 detik di `LEVELS` config tidak konsisten dengan timer 120 detik di GameplayScreen — tidak ada logika yang memakai `WIN_HOLD_SECONDS` secara aktif |
-| 9 | **Tidak ada error boundary** | Tidak ada React Error Boundary — error di GameplayScreen (mis. mic denied) hanya tampil sebagai teks inline, tidak ada fallback UI terstruktur |
-| 10 | **`.env` tidak ada contoh** | Tidak ada `.env.example` atau dokumentasi variabel — onboarding developer baru berisiko karena config tidak terdokumentasi |
+| 6 | **Bebas Neue font** | Tidak diimport secara resmi (Next.js `next/font` atau link tag). Dipanggil via `fontFamily: "'Bebas Neue', sans-serif"` di inline style — font hanya tampil jika sudah ter-install di browser/system |
+| 7 | **`WIN_HOLD_SECONDS` vs `GAME_DURATION_S`** | Konstanta 20 detik di `LEVELS` config tidak konsisten dengan timer 120 detik di GameplayScreen — tidak ada logika yang memakai `WIN_HOLD_SECONDS` secara aktif |
+| 8 | **Tidak ada error boundary** | Tidak ada React Error Boundary — error di GameplayScreen (mis. mic denied) hanya tampil sebagai teks inline, tidak ada fallback UI terstruktur |
+| 9 | **`.env` tidak ada contoh** | Tidak ada `.env.example` atau dokumentasi variabel — onboarding developer baru berisiko karena config tidak terdokumentasi |

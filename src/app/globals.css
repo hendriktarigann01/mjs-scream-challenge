@@ -5,9 +5,9 @@
 }
 
 @theme inline {
-  --color-brand-primary: #191b34; /* blue */
+  --color-brand-primary: #624072; /* blue */
   --color-brand-primary-dark: #212121; /* dark-gray */
-  --color-brand-primary-light: #ffac00cc; /* light-amber */
+  --color-brand-primary-light: #FFFFFF; /* light-amber */
 }
 
 * {

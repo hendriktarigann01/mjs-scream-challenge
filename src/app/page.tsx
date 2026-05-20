@@ -1,13 +1,15 @@
-// Tujuan: State machine game utama — idle → instruction → countdown → playing → (win modal / auto-reset)
-// Caller: Next.js App Router (root route)
-// Main Exports: Home (default)
-
 "use client";
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import type { GameState, GameResult, GameLevel, Player, AvatarId } from "@/types/game";
+import type {
+  GameState,
+  GameResult,
+  GameLevel,
+  Player,
+  AvatarId,
+} from "@/types/game";
 import RegisterScreen from "@/components/RegisterScreen";
 import InstructionScreen from "@/components/InstructionScreen";
 import CountdownScreen from "@/components/CountdownScreen";
@@ -27,7 +29,6 @@ export default function Home() {
 
   const { addScore } = useLeaderboard();
 
-  // RegisterScreen memanggil onConfirm(player, level) → langsung masuk instruction
   const handleConfirmRegister = useCallback((p: Player, l: GameLevel) => {
     setPlayer(p);
     setLevel(l);
@@ -36,7 +37,6 @@ export default function Home() {
     setGameState("instruction");
   }, []);
 
-  // InstructionScreen memilih level → countdown
   const handleStartGame = useCallback((selectedLevel: GameLevel) => {
     setLevel(selectedLevel);
     setGameState("countdown");
@@ -50,17 +50,14 @@ export default function Home() {
   const handleGameFinish = useCallback((res: GameResult) => {
     setResult(res);
     if (res.isWin) {
-      // Menang → tampilkan WinModal
       setGameState("result");
     } else {
-      // Kalah → auto-reset ke idle
       setGameState("idle");
       setResult(null);
       setPlayer(null);
     }
   }, []);
 
-  // WinModal → submit score lalu redirect ke leaderboard
   const handleViewLeaderboard = useCallback(async () => {
     if (!result || !player) return;
     setSubmitting(true);
@@ -102,7 +99,6 @@ export default function Home() {
           <GameplayScreen level={level} onFinish={handleGameFinish} />
         )}
 
-        {/* Win → WinModal overlay (di atas GameplayScreen yang masih terlihat di belakang) */}
         {gameState === "result" && result && result.isWin && (
           <WinModal
             finalScore={result.score}

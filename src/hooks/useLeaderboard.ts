@@ -1,9 +1,3 @@
-// Tujuan: Handle Supabase leaderboard fetching and submission
-// Caller: LeaderboardPage, ResultScreen
-// Dependensi: supabase-js
-// Main Exports: useLeaderboard
-// Side Effects: Fetch & insert to leaderboard table (kolom: score)
-
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import type { LeaderboardEntry, AvatarId } from "@/types/game";

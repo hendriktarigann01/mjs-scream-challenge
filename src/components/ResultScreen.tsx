@@ -1,7 +1,3 @@
-// Tujuan: Show final score, combo multiplier, and win/lose state
-// Caller: app/page.tsx
-// Dependensi: useLeaderboard
-// Main Exports: ResultScreen
 
 "use client";
 
@@ -23,14 +19,9 @@ export default function ResultScreen({ result, onReset }: ResultScreenProps) {
   const { addScore } = useLeaderboard();
 
   useEffect(() => {
-    // Attempt to retrieve player info or fallback to defaults
-    // Since there's no registration screen, we might default to "Anonymous"
-    // The previous implementation didn't call addScore if there was no register screen.
-    // If it did, it would save an entry to leaderboard.
-    const savedPlayer = localStorage.getItem("mjs_player_name") || "Anonymous";
+   const savedPlayer = localStorage.getItem("mjs_player_name") || "Anonymous";
     const savedAvatar = localStorage.getItem("mjs_player_avatar") || "profile-1";
     
-    // Auto submit to leaderboard
     addScore({
       playerName: savedPlayer,
       avatar: savedAvatar as AvatarId,

@@ -28,8 +28,6 @@ export function useMicrophone(): UseMicrophoneReturn {
   const animFrameRef = useRef<number | null>(null);
   const freqArrayRef = useRef<Float32Array<ArrayBuffer> | null>(null);
   const activeRef = useRef(false);
-
-  // Store tick in a ref so it can self-reference without circular declaration
   const tickRef = useRef<() => void>(() => {});
 
   useEffect(() => {

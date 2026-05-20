@@ -47,10 +47,7 @@ export default function CountdownScreen({ onComplete }: CountdownScreenProps) {
             fontSize: isScream
               ? "clamp(4rem, 15vw, 10rem)"
               : "clamp(8rem, 25vw, 18rem)",
-            color: isScream ? "#005473" : "#005473",
-            // textShadow: isScream
-            //   ? "0 0 80px #005473, 0 0 160px #00547366"
-            //   : "0 0 40px #00547344",
+            color: isScream ? "#FFFFFF" : "#FFFFFF",
             display: "block",
             textAlign: "center",
           }}

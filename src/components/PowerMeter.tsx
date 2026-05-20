@@ -1,110 +1,97 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { getFlavorText, BAR_ZONES, BAR_WIN } from "@/lib/scoreUtils";
-import type { GameLevel } from "@/types/game";
+import Image from "next/image";
+import { getFlavorText, BAR_WIN } from "@/lib/scoreUtils";
 
 interface PowerMeterProps {
   barValue: number;
+  currentScore: number;
   comboMultiplier: number;
 }
 
-const DIVIDER_COLOR = "#191B34";
-const EMPTY_COLOR = "#D9D9D9";
-const BAR_W = 28; // px — lebar bar utama
-const DIV_W = 48; // px — lebar divider (lebih lebar = efek menonjol)
-const DIV_H = 14; // px — tinggi divider
-const ZONE_H = 72; // px — tinggi tiap zone
-
-const Divider = () => (
-  <div
-    style={{
-      width: `${DIV_W}px`,
-      height: `${DIV_H}px`,
-      background: DIVIDER_COLOR,
-      borderRadius: "999px",
-      flexShrink: 0,
-      alignSelf: "center",
-    }}
-  />
-);
-
-export default function PowerMeter({ barValue, comboMultiplier }: PowerMeterProps) {
-  const zoneRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Calculate percentage 0-100 based on BAR_WIN
-  const pct = Math.min(100, Math.max(0, (barValue / BAR_WIN) * 100));
-
-  useEffect(() => {
-    // BAR_ZONES are defined in terms of values (0-100, 100-150, 150-200, 200-300).
-    // We map pct (0-100) to these zones. 
-    // Since BAR_WIN is 300, pct represents the overall fill.
-    // Let's use the actual value for filling.
-    const currentValue = barValue;
-
-    BAR_ZONES.forEach((zone, i) => {
-      const el = zoneRefs.current[i];
-      if (!el) return;
-
-      if (currentValue >= zone.to) {
-        el.style.background = zone.color;
-      } else if (currentValue > zone.from) {
-        const filledPct = ((currentValue - zone.from) / (zone.to - zone.from)) * 100;
-        el.style.background = `linear-gradient(to top, ${zone.color} ${filledPct}%, ${EMPTY_COLOR} ${filledPct}%)`;
-      } else {
-        el.style.background = EMPTY_COLOR;
-      }
-    });
-  }, [barValue]);
-
-  // Render dari atas ke bawah: Divider, Zone[3], Divider, Zone[2], ..., Zone[0], Divider
-  // BAR_ZONES dibalik supaya render atas = red, bawah = green
-  const zonesTopToBottom = [...BAR_ZONES].reverse();
+export default function PowerMeter({
+  barValue,
+  currentScore,
+  comboMultiplier,
+}: PowerMeterProps) {
+  const fillPct = Math.min(100, Math.max(0, (barValue / BAR_WIN) * 100));
   const flavorText = getFlavorText(barValue, comboMultiplier);
 
-  return (
-    <div className="flex flex-col items-center gap-6 select-none relative w-full justify-center">
-      <div
-        className="flex flex-col items-center relative"
-        style={{ width: `${DIV_W}px` }}
-      >
-        {zonesTopToBottom.map((zone, i) => {
-          // index di zoneRefs tetap pakai original index (0=green, 3=red)
-          const originalIndex = BAR_ZONES.length - 1 - i;
-          return (
-            <div key={zone.from} className="flex flex-col items-center w-full relative">
-              <Divider />
-              {/* Marker Text */}
-              <div className="absolute right-[60px] top-[-8px]">
-                <span className="text-[#191B34] font-bold text-lg font-sans tabular-nums">{zone.to}</span>
-              </div>
-              <div
-                ref={(el) => {
-                  zoneRefs.current[originalIndex] = el;
-                }}
-                style={{
-                  width: `${BAR_W}px`,
-                  height: `${ZONE_H}px`,
-                  background: EMPTY_COLOR,
-                  transition: "background 100ms",
-                  flexShrink: 0,
-                }}
-              />
-            </div>
-          );
-        })}
-        {/* Divider paling bawah */}
-        <div className="relative flex flex-col items-center w-full">
-            <Divider />
-            <div className="absolute right-[60px] top-[-8px]">
-              <span className="text-[#191B34] font-bold text-lg font-sans tabular-nums">0</span>
-            </div>
-        </div>
-      </div>
+  let glowIntensity = 0;
+  if (currentScore >= 300) {
+    const progress = Math.min(1, (currentScore - 300) / 1200);
+    glowIntensity = 0.4 + progress * 0.6;
+  }
 
-      <p className="text-[#191B34] text-sm tracking-widest uppercase font-black text-center mt-2 h-8">
+  const glowBlur = 15 + glowIntensity * 30;
+
+  return (
+    <div className="flex flex-col items-center gap-20 select-none relative w-full justify-center">
+      <p className="text-white text-6xl tracking-widest uppercase font-black text-center">
         {flavorText}
       </p>
+
+      <div className="relative w-full flex items-center justify-center">
+        <div
+          className="absolute left-0 flex-shrink-0"
+          style={{ width: "200px", height: "600px" }}
+        >
+          <Image
+            src="/common/power-meter.webp"
+            alt="power meter"
+            fill
+            className="object-contain"
+            unoptimized
+            priority
+          />
+        </div>
+
+        <div className="relative" style={{ width: "300px", height: "650px" }}>
+          {glowIntensity > 0 && (
+            <div
+              className="absolute inset-0 z-40 rounded-full pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 120% 80% at 50% 35%, rgba(255, 255, 255, ${0.3 + glowIntensity * 0.6}) 0%, transparent 70%)`,
+                filter: `blur(${glowBlur}px)`,
+                opacity: glowIntensity,
+                transform: `scale(${2 + glowIntensity * 0.5})`,
+                transition:
+                  "opacity 800ms ease, filter 800ms ease, transform 800ms ease",
+              }}
+            />
+          )}
+
+          <div className="absolute -inset-45 z-10">
+            <Image
+              src="/lamp.webp"
+              alt="lamp base"
+              fill
+              className="object-contain"
+              style={{ opacity: 0.35 }}
+              unoptimized
+              priority
+            />
+          </div>
+
+          <div
+            className="absolute -inset-45 z-40"
+            style={{
+              clipPath: `inset(${100 - fillPct}% 0 0 0)`,
+              transition: "clip-path 150ms ease-out",
+            }}
+          >
+            <Image
+              src="/lamp.webp"
+              alt="lamp filled"
+              fill
+              className="object-contain"
+              style={{ opacity: 1 }}
+              unoptimized
+              priority
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
